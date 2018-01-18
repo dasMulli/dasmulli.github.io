@@ -39,7 +39,7 @@ public class Startup
 
     public IHostingEnvironment HostingEnvironment { get; }
 
-            public void ConfigureServices(IServiceCollection services)
+    public void ConfigureServices(IServiceCollection services)
     {
         services.AddDbContextPool<MyDbContext>(options =>
         {
