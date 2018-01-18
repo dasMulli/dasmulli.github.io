@@ -253,6 +253,7 @@ header .entry-meta {
   border-radius: 50%;
   box-shadow: 0 0 8px rgba($black, 0.8);
 }
+
 .author-container {
   display: flex;
 }
@@ -553,6 +554,7 @@ ul.social-buttons {
   width: $menu-height;
   height: $menu-height;
   padding: 10px;
+  border-radius: 50%;
 }
 
 .footer-wrapper {

@@ -5,9 +5,7 @@
     </li>
     <li class="header-item-title">
       <a href="{{ site.url }}/">
-        {{#if site.logo}}
-        <img src="{{ site.url }}/{{ site.logo }}" alt="{{ site.title }}" class="logo">
-        {{/if}}
+        <img src="{{ gravatar.owner }}?s=70" alt="{{ site.owner.name }}" class="author-logo logo">
         <span class="title">{{ site.title }}</span>
       </a>
     </li>

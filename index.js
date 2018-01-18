@@ -188,7 +188,7 @@ Metalsmith(__dirname)
 }))
 .use(excerpts())
 .use(gravatar({
-  owner: "you@email.com",
+  owner: "martin.andreas.ullrich@gmail.com",
 }))
 .use(permalinks({
   pattern: ':title',
