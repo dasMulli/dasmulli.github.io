@@ -1117,6 +1117,7 @@ ul.social-buttons li:hover a {
   width: 70px;
   height: 70px;
   padding: 10px;
+  border-radius: 50%;
 }
 
 .footer-wrapper {
