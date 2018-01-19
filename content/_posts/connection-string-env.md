@@ -53,7 +53,7 @@ public class Startup
             {
                 connectionStringBuilder.InitialCatalog += "_" + Environment.MachineName;
             }
-            y
+            
             connectionString = connectionStringBuilder.ConnectionString;
 
             options.UseSqlServer(connectionString);
