@@ -96,7 +96,7 @@ Metalsmith(__dirname)
     words_per_minute: 200,
 
     disqus: '',
-    google_analytics: '',
+    google_analytics: 'UA-112754157-1',
 
     // Site Locale Info
     timezone: 'Europe/Vienna',
