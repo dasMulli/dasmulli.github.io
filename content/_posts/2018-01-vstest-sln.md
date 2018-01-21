@@ -10,7 +10,7 @@ lunr: true
 background-image: triangular.png
 ---
 
-THe `dotnet` cli's `test` command can be run on any msbuild project or solution, yet it fails when run on non-test projects and prints errors like:
+The `dotnet` cli's `test` command can be run on any msbuild project or solution, yet it fails when run on non-test projects and prints errors like:
 
 ```
 No test is available in [SomeApp].dll. Make sure test project has a nuget reference of package "Microsoft.NET.Test.Sdk" and framework version settings are appropriate and try again.
