@@ -315,3 +315,7 @@ This means i can now create more `appsettings.*.json` files and use the same bui
 # Sample App
 
 The sample app is hosted on GitHub at [dasMulli/ConfigSampleWebApp](https://github.com/dasMulli/ConfigSampleWebApp).
+
+# Note on security.
+
+Don't forget to prevent your json files from being downloaded!
