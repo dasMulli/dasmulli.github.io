@@ -25,6 +25,7 @@
     "metalsmith-discover-partials": "^0.1.0",
     "metalsmith-drafts": "0.0.1",
     "metalsmith-excerpts": "^1.1.0",
+    "metalsmith-feed": "^0.5.0",
     "metalsmith-gravatar": "^0.1.0",
     "metalsmith-in-place": "^2.0.1",
     "metalsmith-inspect": "0.0.3",

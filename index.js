@@ -17,6 +17,7 @@ const collections        = require('metalsmith-collections');
 const discoverHelpers    = require('metalsmith-discover-helpers');
 const discoverPartials   = require('metalsmith-discover-partials');
 const markdownRemarkable = require('metalsmith-markdown-remarkable');
+const feed               = require('metalsmith-feed');
 
 const remarkableEmoji    = require('remarkable-emoji');
 const remarkableMentions = require('remarkable-mentions');
@@ -89,7 +90,7 @@ Metalsmith(__dirname)
   site: {
     // Site Info
     title: "Martin Ullrich",
-    description: "Some coding stuff.",
+    description: "Martin's dev blog",
     url: process.env.NODE_ENV === 'production' ? "http://dasmulli.blog" : 'http://localhost:8080',
 
     reading_time: true,
@@ -224,6 +225,10 @@ Metalsmith(__dirname)
 // }))
 .use(assets({
   source: './assets',
+}))
+.use(feed({
+  collection: 'posts',
+  postDescription: (post) => post.description
 }))
 .build((error, files) => {
   if(error) {
