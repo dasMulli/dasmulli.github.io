@@ -96,7 +96,7 @@ Metalsmith(__dirname)
     reading_time: true,
     words_per_minute: 200,
 
-    disqus: '',
+    disqus: 'dasmulli',
     google_analytics: 'UA-112754157-1',
 
     // Site Locale Info
