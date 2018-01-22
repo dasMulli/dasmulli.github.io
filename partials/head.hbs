@@ -49,9 +49,9 @@
 <style>
   body {
     {{#if background-image}}
-    background-image: url({{#unless (test background-image 'https?://')}}{{ site.url }}/images/{{/unless}}{{ background-image }});
+    background-image: url(/images/{{ background-image }});
     {{else}}
-    background-image: url({{#unless (test site.background-image 'https?://')}}{{ site.url }}/images/{{/unless}}{{ site.background-image }});
+    background-image: url(/images/{{ site.background-image }});
     {{/if}}
   }
 </style>
