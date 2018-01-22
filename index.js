@@ -91,7 +91,7 @@ Metalsmith(__dirname)
     // Site Info
     title: "Martin Ullrich",
     description: "Martin's dev blog",
-    url: process.env.NODE_ENV === 'production' ? "http://dasmulli.blog" : 'http://localhost:8080',
+    url: process.env.NODE_ENV === 'production' ? "https://dasmulli.blog" : 'http://localhost:8080',
 
     reading_time: true,
     words_per_minute: 200,
