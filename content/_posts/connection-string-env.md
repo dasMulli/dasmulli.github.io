@@ -2,7 +2,7 @@
 layout: post.html
 title: Auto-modifying connection strings based on the environment
 description: "Ease development and ops by configuring only one connection string and use code to modify it based on the current environment."
-date: 2017-01-18
+date: 2018-01-18
 tags: [asp.net-core ef-core]
 collection: posts
 comments: true

@@ -220,9 +220,12 @@ Metalsmith(__dirname)
   },
   preprocess: striptags
 }))
-// .use(redirect({
-//   '/old/path': '/new/path',
-// }))
+.use(redirect({
+  '/2017/01/21/exploring-global-net-core-tools/': '/2018/01/23/exploring-global-net-core-tools/',
+  '/2017/01/21/use-appsettings-json-and-environment-overrides-in-classic-asp-net-apps/': '/2018/01/21/use-appsettings-json-and-environment-overrides-in-classic-asp-net-apps/',
+  '/2017/01/20/make-dotnet-test-work-on-solution-files/': '/2018/01/20/make-dotnet-test-work-on-solution-files/',
+  '/2017/01/18/auto-modifying-connection-strings-based-on-the-environment/': '/2018/01/18/auto-modifying-connection-strings-based-on-the-environment/'
+}))
 .use(assets({
   source: './assets',
 }))

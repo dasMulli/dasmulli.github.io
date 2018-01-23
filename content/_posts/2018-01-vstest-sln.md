@@ -2,7 +2,7 @@
 layout: post.html
 title: Make dotnet test work on solution files
 description: "Using the dotnet test command on solutions containing non-test projects currently erros. Here's a workaround."
-date: 2017-01-20
+date: 2018-01-20
 tags: [msbuild vstest .net-core]
 collection: posts
 comments: true

@@ -2,7 +2,7 @@
 layout: post.html
 title: Use appsettings.json and environment overrides in classic ASP.NET apps
 description: "Supercharge your classic ASP.NET apps with the config system introduced in ASP.NET Core"
-date: 2017-01-21
+date: 2018-01-21
 tags: [asp.net-core asp.net configuration]
 collection: posts
 comments: true

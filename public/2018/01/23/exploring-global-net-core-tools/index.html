@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    
+    <title>Exploring global .NET Core tools &#8211; Martin Ullrich</title>
+    <meta name="description" content="Pack and ship your .NET Core application and install it as a global tool using .NET Core 2.1.300 preview tooling.">
+    <meta name="keywords" content="asp.net-core asp.net configuration">
+    
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@dasmulli">
+    <meta name="twitter:creator" content="@dasmulli">
+    
+    <!-- Open Graph -->
+    <meta name="og:locale" content="en_US">
+    <meta name="og:type" content="article">
+    <meta name="og:title" content="Exploring global .NET Core tools">
+    <meta name="og:description" content="Pack and ship your .NET Core application and install it as a global tool using .NET Core 2.1.300 preview tooling.">
+    <meta name="og:url" content="https://dasmulli.blog/2018/01/23/exploring-global-net-core-tools">
+    <meta name="og:site_name" content="Martin Ullrich">
+    <meta name="og:image" content="https://dasmulli.blog/images/">
+    
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="https://dasmulli.blog/feed.rss" />
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://dasmulli.blog/stylesheets/vendor/font-awesome/font-awesome.css">
+    <link rel="stylesheet" href="https://dasmulli.blog/stylesheets/vendor/prism-vs.css">
+    <link rel="stylesheet" href="https://dasmulli.blog/stylesheets/main.css">
+    <!-- Webfonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    
+    <link rel="shortcut icon" href="https://dasmulli.blog/favicon.ico">
+    <link rel="shortcut icon" type="image/png" href="https://dasmulli.blog/favicon.png">
+    
+    <style>
+      body {
+        background-image: url(/images/triangular.png);
+      }
+    </style>
+  </head>
+  <body id="post" >
+    <div class="header-menu header-menu-top">
+      <ul class="header-item-container">
+        <li class="header-item-title header-toggle">
+          <a href="#menu"><h2><i class="fa fa-bars"></i></h2></a>
+        </li>
+        <li class="header-item-title">
+          <a href="https://dasmulli.blog/">
+            <img src="http://www.gravatar.com/avatar/1acd8ef9d33b72c888c544378a59be2b?s=70" alt="Martin A. Ullrich" class="author-logo logo">
+            <span class="title">Martin Ullrich</span>
+          </a>
+        </li>
+        <li class="header-item">
+          <a href="https://dasmulli.blog/about">
+            <h3>About</h3>
+          </a>
+        </li>
+            <li class="header-item">
+          <a href="https://dasmulli.blog/posts">
+            <h3>Archive</h3>
+          </a>
+        </li>
+            <li class="header-item">
+          <a href="https://dasmulli.blog/">
+            <h3>Home</h3>
+          </a>
+        </li>
+            <li class="header-item">
+          <a href="https://dasmulli.blog/search">
+            <h3><i class="fa fa-search"></i></h3>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="entry-header">
+      <div class="header-title">
+        <div class="header-title-wrap">
+          <h1>Exploring global .NET Core tools</h1>
+          <h2>
+            <span class="entry-date date published updated">
+              <time datetime="2018-01-23T01:00:00+01:00">January 23, 2018</time>
+            </span>
+          </h2>
+          <p class="entry-reading-time">
+            <i class="fa fa-clock-o"></i>
+            Reading time ~4 minutes
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div id="main" role="main">
+      <article class="entry">
+        <div class="entry-content">
+          <h1 class="post-title entry-title">Exploring global .NET Core tools</h1>
+          <p>.NET Core allows us to create and run .NET apps on many platforms, but actually shipping our apps is hard, especially
+if those apps aren&#x2019;t web apps that use one of the well-integrated publishing methods (WebDeploy, Azure, Docker, &#x2026;).</p>
+<p>Node already allows to package up apps and then install and use them using:</p>
+<pre><code>&gt; npm install -g something
+&gt; something
+</code></pre>
+<p>The upcoming .NET Core SDK 2.1.300, slated to be released with .NET Core 2.1, will offer a similar functionality:</p>
+<pre><code>&gt; dotnet install tool -g something
+&gt; something
+</code></pre>
+<p>These applications are downloaded and installed from NuGet and are marked as a special package type.</p>
+<p>So let&#x2019;s build one ourself. Get a preview <code>2.1.300</code> .NET Core SDK version from the links at <a href="https://github.com/dotnet/cli">https://github.com/dotnet/cli</a> to follow along. The full sample is available on GitHub at <a href="https://github.com/dasMulli/GlobalCliToolsExample">https://github.com/dasMulli/GlobalCliToolsExample</a>.</p>
+<h2>Some config first</h2>
+<p>In order to use preview packages from the nightly feed and use our built nuget packages:</p>
+<ul>
+<li>Create a folder to work in, this will be the base for all commands run</li>
+<li>Create a folder named <code>nupkgs</code> that will hold our built NuGet packages</li>
+<li>Run <code>dotnet new nugetconfig</code> to generate a <code>nuget.config</code> file. Edit it to add the custom folder and the CI feed:</li>
+</ul>
+<pre class="language-xml line-numbers"><code class="language-xml"><span class="token prolog">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>configuration</span><span class="token punctuation">&gt;</span></span>
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>packageSources</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>add</span> <span class="token attr-name">key</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>local-packages<span class="token punctuation">&quot;</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>./nupkgs<span class="token punctuation">&quot;</span></span> <span class="token punctuation">/&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>add</span> <span class="token attr-name">key</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>dotnet-core<span class="token punctuation">&quot;</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>https://dotnet.myget.org/F/dotnet-core/api/v3/index.json<span class="token punctuation">&quot;</span></span> <span class="token punctuation">/&gt;</span></span>
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>packageSources</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>configuration</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<h2>Create the app</h2>
+<p>So we now need an application to work with. As a good sample, let&#x2019;s create a program that just greets the user:</p>
+<pre><code>&gt; dotnet new console -o sayhi.tool
+</code></pre>
+<p>This will create a folder <code>sayhi.tool</code> and a console app and <code>.csproj</code> file inside of it. First, I don&#x2019;t like &#x201C;Hello World!&#x201D; that much, so changed the <code>Program.cs</code> file to something slightly more interesting:</p>
+<pre class="language-csharp line-numbers"><code class="language-csharp"><span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">Main</span><span class="token punctuation">(</span><span class="token keyword">string</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    Console<span class="token punctuation">.</span><span class="token function">WriteLine</span><span class="token punctuation">(</span>$<span class="token string">&quot;Hi {Environment.UserName}!&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2>Mark the app as tool</h2>
+<p>In order to be packed correctly so that we can install the app as a tool, we need to change the <code>sayhi.tool.csproj</code> file a little:</p>
+<pre class="language-xml line-numbers"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Project</span> <span class="token attr-name">Sdk</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>Microsoft.NET.Sdk<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span>
+
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>PropertyGroup</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>OutputType</span><span class="token punctuation">&gt;</span></span>Exe<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>OutputType</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>TargetFramework</span><span class="token punctuation">&gt;</span></span>netcoreapp2.1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>TargetFramework</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>PackAsTool</span><span class="token punctuation">&gt;</span></span>true<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>PackAsTool</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>ToolCommandName</span><span class="token punctuation">&gt;</span></span>sayhi<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>ToolCommandName</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>PackageOutputPath</span><span class="token punctuation">&gt;</span></span>../nupkgs<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>PackageOutputPath</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>PropertyGroup</span><span class="token punctuation">&gt;</span></span>
+
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>Project</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>While you may recognize <code>OutputType</code> and <code>TargetFramework</code> from normal csproj files, there are a few new ones here:</p>
+<ul>
+<li><code>PackageOutputPath</code>: This tells <code>dotnet pack</code> where to put the <code>.nupkg</code> file to. This propertiy isn&#x2019;t new and alredy exists in released tooling. For our example, it needs to point to the path we configured in <code>nuget.config</code>.</li>
+<li><code>PackAsTool</code>: This instructs the tooling to package our app correctly for being installed as a tool.</li>
+<li><code>ToolCommandName</code>: This lets us choose the command line executable name for the app. It defaults to the assembly name of the application, but want to type <code>sayhi</code> instead of <code>sayhi.tool</code> in this example.</li>
+</ul>
+<h2>Build and run!</h2>
+<p>In the top level folder for this sample, run:</p>
+<pre><code>&gt; dotnet pack -c Release
+&#x2026; 
+Successfully created package &apos;C:\repos\GlobalCliToolsExample\nupkgs\sayhi.tool.1.0.0.nupkg&apos;.
+
+&gt; dotnet install tool -g sayhi.tool
+
+The installation succeeded. If there are no further instructions, you can type the following command in shell directly to invoke: sayhi
+</code></pre>
+<p>You may see some warnings because of prerelease version numbers being used by the preview tooling - you can ignore them.</p>
+<p>Now to be safe, open up a <strong>new console window</strong>. You can skip this if you already used global tools before, but if this is your first <code>dotnet install</code> call, you may still need to do so.</p>
+<p>Our program can now be run from the command line using just:</p>
+<pre><code>&gt; sayhi
+Hi martin.ullrich!
+</code></pre>
+<h2>Where is it installed to?</h2>
+<p>Our <code>sayhi</code> tool is installed into a <code>.dotnet\tools</code> folder in the user&#x2019;s directory:</p>
+<p><img src="/images/2018-03-cli.tools-dir.png" alt="tools directory"></p>
+<p>The install command generates a <code>.exe</code> file as a warpper on windows and shell scripts on macOS / Linux. On windows, this is currently a .NET Framework executable, but it is planned to be replaced with a native executable for an upcoming preview.</p>
+<h2>Bonus: Integrate with the <code>dotnet</code> command</h2>
+<p>The <code>dotnet</code> CLI always allowed to use programs named <code>dotnet-something</code> as verbs (=&gt; <code>dotnet something</code>). This is now possible with global tools as well.</p>
+<p>To do so, let&#x2019;s create a similar application <code>greet.tool</code> using the same steps as above, but in <code>greet.tool.csproj</code>, set <code>ToolCommandName</code> differently:</p>
+<pre class="language-xml line-numbers"><code class="language-xml">  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>PropertyGroup</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>ToolCommandName</span><span class="token punctuation">&gt;</span></span>dotnet-greet<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>ToolCommandName</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>PropertyGroup</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<p>Now build and install this tool:</p>
+<pre><code>&gt; dotnet pack
+&gt; dotnet install tool -g greet.tool
+</code></pre>
+<p>And it can be run using:</p>
+<pre><code>&gt; dotnet greet
+Hi martin.ullrich!
+</code></pre>
+<p>Note: This <strong>currently does not work on macOS/Linux</strong> (known bug) because the CLI does not search the <code>~/.dotnet/tools</code> path for verb executables.</p>
+<h2>Sample code</h2>
+<p>The full sample is avilable at <a href="https://github.com/dasMulli/GlobalCliToolsExample">https://github.com/dasMulli/GlobalCliToolsExample</a>.</p>
+
+          <footer class="entry-meta">
+            <!-- TODO: Tags -->
+            <span class="author vcard"><span class="fn">Martin A. Ullrich</span></span>
+            <!-- TODO: Social Share -->
+          </footer>
+        </div>
+        <div class="read-more">
+          <div class="read-more-header">
+            <a href="https://dasmulli.github.io" class="read-more-btn">About the Author</a>
+          </div>
+          <div class="read-more-content author-info">
+            <h3>Martin A. Ullrich</h3>
+            <div class="author-container">
+              <img src="http://www.gravatar.com/avatar/1acd8ef9d33b72c888c544378a59be2b?s=150" alt="Martin A. Ullrich" class="author-img">
+              <div class="author-bio">Software Developer in the .NET space. Also do Java, Swift/ObjC and front-end stuff.</div>
+            </div>
+            <div class="author-share">
+              <ul class="list-inline social-buttons">
+                <li>
+                  <a href="https://github.com/dasmulli" title="GitHub" target="_blank">
+                    <i class="fa fa-github-alt fa-fw"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.facebook.com/martin.andreas.ullrich" title="Facebook" target="_blank">
+                    <i class="fa fa-facebook-official fa-fw"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://stackoverflow.com/users/784387/martin-ullrich" title="StackOverflow" target="_blank">
+                    <i class="fa fa-stack-overflow fa-fw"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://twitter.com/dasmulli" title="Twitter" target="_blank">
+                    <i class="fa fa-twitter fa-fw"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <section id="disqus_thread"></section>
+        <div class="read-more">
+          <div class="read-more-header">
+            <a href="https://dasmulli.blog/2018/01/21/use-appsettings-json-and-environment-overrides-in-classic-asp-net-apps" class="read-more-btn">Read More</a>
+          </div>
+          <div class="read-more-content">
+            <h3>
+              <a href="/2018/01/21/use-appsettings-json-and-environment-overrides-in-classic-asp-net-apps" title="Use appsettings.json and environment overrides in classic ASP.NET apps">Use appsettings.json and environment overrides in classic ASP.NET apps</a>
+            </h3>
+            <p>
+              Supercharge your classic ASP.NET apps with the config system introduced in ASP.NET Core
+              <a href="/2018/01/21/use-appsettings-json-and-environment-overrides-in-classic-asp-net-apps">Continue reading</a>
+            </p>
+          </div>
+          <div class="read-more-list">
+            <div class="list-item">
+              <h4>
+                <a href="/2018/01/20/make-dotnet-test-work-on-solution-files" title="Make dotnet test work on solution files">Make dotnet test work on solution files</a>
+              </h4>
+              <span>Published on January 20, 2018</span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-112754157-1', 'auto');
+      ga('require', 'linkid', 'linkid.js');
+      ga('send', 'pageview');
+    </script>
+    
+    <script src="https://dasmulli.disqus.com/embed.js" async data-timestamp="Tue Jan 23 2018 20:24:07 GMT+0100 (CET)"></script>
+    <script src="https://dasmulli.disqus.com/count.js" async id="dsq-count-scr"></script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    <div class="footer-wrapper">
+      <footer class="contentinfo">
+        <span>&copy; 2018 Martin A. Ullrich. Powered by <a href="http://www.metalsmith.io/" rel="nofollow">Matalsmith</a> using the <a href="https://github.com/tjpeden/neo-hpstr-metalsmith-theme" rel="nofollow">Neo-HPSTR Metalsmith Theme</a>.</span>
+      </footer>
+    </div>
+  </body>
+</html>
