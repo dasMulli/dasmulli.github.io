@@ -308,7 +308,7 @@ For the sample app, the config files I used are:
 
 Then i created a `Default.aspx` site that uses `ConfigurationManager` to list all app settings and connection strings. The result is:
 
-![result](2018-02-configbuilder-result.png)
+![result](/images/2018-02-configbuilder-result.png)
 
 This means i can now create more `appsettings.*.json` files and use the same build output for all environments, just setting different environment variables on the machines or App Pools.
 
