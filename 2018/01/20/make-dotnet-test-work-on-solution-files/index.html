@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    
+    <title>Make dotnet test work on solution files &#8211; Martin Ullrich</title>
+    <meta name="description" content="Using the dotnet test command on solutions containing non-test projects currently erros. Here&#x27;s a workaround.">
+    <meta name="keywords" content="msbuild vstest .net-core">
+    
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@dasmulli">
+    <meta name="twitter:creator" content="@dasmulli">
+    
+    <!-- Open Graph -->
+    <meta name="og:locale" content="en_US">
+    <meta name="og:type" content="article">
+    <meta name="og:title" content="Make dotnet test work on solution files">
+    <meta name="og:description" content="Using the dotnet test command on solutions containing non-test projects currently erros. Here&#x27;s a workaround.">
+    <meta name="og:url" content="https://dasmulli.blog/2018/01/20/make-dotnet-test-work-on-solution-files">
+    <meta name="og:site_name" content="Martin Ullrich">
+    <meta name="og:image" content="https://dasmulli.blog/images/">
+    
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="https://dasmulli.blog/feed.rss" />
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://dasmulli.blog/stylesheets/vendor/font-awesome/font-awesome.css">
+    <link rel="stylesheet" href="https://dasmulli.blog/stylesheets/vendor/prism-vs.css">
+    <link rel="stylesheet" href="https://dasmulli.blog/stylesheets/main.css">
+    <!-- Webfonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    
+    <link rel="shortcut icon" href="https://dasmulli.blog/favicon.ico">
+    <link rel="shortcut icon" type="image/png" href="https://dasmulli.blog/favicon.png">
+    
+    <style>
+      body {
+        background-image: url(/images/triangular.png);
+      }
+    </style>
+  </head>
+  <body id="post" >
+    <div class="header-menu header-menu-top">
+      <ul class="header-item-container">
+        <li class="header-item-title header-toggle">
+          <a href="#menu"><h2><i class="fa fa-bars"></i></h2></a>
+        </li>
+        <li class="header-item-title">
+          <a href="https://dasmulli.blog/">
+            <img src="http://www.gravatar.com/avatar/1acd8ef9d33b72c888c544378a59be2b?s=70" alt="Martin A. Ullrich" class="author-logo logo">
+            <span class="title">Martin Ullrich</span>
+          </a>
+        </li>
+        <li class="header-item">
+          <a href="https://dasmulli.blog/about">
+            <h3>About</h3>
+          </a>
+        </li>
+            <li class="header-item">
+          <a href="https://dasmulli.blog/posts">
+            <h3>Archive</h3>
+          </a>
+        </li>
+            <li class="header-item">
+          <a href="https://dasmulli.blog/">
+            <h3>Home</h3>
+          </a>
+        </li>
+            <li class="header-item">
+          <a href="https://dasmulli.blog/search">
+            <h3><i class="fa fa-search"></i></h3>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="entry-header">
+      <div class="header-title">
+        <div class="header-title-wrap">
+          <h1>Make dotnet test work on solution files</h1>
+          <h2>
+            <span class="entry-date date published updated">
+              <time datetime="2018-01-20T01:00:00+01:00">January 20, 2018</time>
+            </span>
+          </h2>
+          <p class="entry-reading-time">
+            <i class="fa fa-clock-o"></i>
+            Reading time ~4 minutes
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div id="main" role="main">
+      <article class="entry">
+        <div class="entry-content">
+          <h1 class="post-title entry-title">Make dotnet test work on solution files</h1>
+          <p>The <code>dotnet</code> cli&#x2019;s <code>test</code> command can be run on any msbuild project or solution, yet it fails when run on non-test projects and prints errors like:</p>
+<pre><code>No test is available in [SomeApp].dll. Make sure test project has a nuget reference of package &quot;Microsoft.NET.Test.Sdk&quot; and framework version settings are appropriate and try again.
+
+Test Run Aborted.
+</code></pre>
+<p>While this is useful to not mistakenly assume that all your tests ran correctly, it prevents you from just running all tests in your solution in one invocation.</p>
+<p>Some suggst writing bash or powershell scripts to work around this, I suggest a pure msbuild-based approach that works cross-platform. Let&#x2019;s have a look at the workaournd first before examining it in more detail:</p>
+<ol>
+<li>Create a file named <code>Directory.Build.targets</code> in the solution&#x2019;s directory with the following contents:</li>
+</ol>
+<pre class="language-xml line-numbers"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Project</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Target</span> <span class="token attr-name">Name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>VSTestIfTestProject<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>CallTarget</span> <span class="token attr-name">Targets</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>VSTest<span class="token punctuation">&quot;</span></span> <span class="token attr-name">Condition</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span><span class="token punctuation">&apos;</span>$(IsTestProject)<span class="token punctuation">&apos;</span> == <span class="token punctuation">&apos;</span>true<span class="token punctuation">&apos;</span><span class="token punctuation">&quot;</span></span> <span class="token punctuation">/&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>Target</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>Project</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<ol start="2">
+<li>Create a file named <code>after.[YourSolution].sln.targets</code> next to the <code>.sln</code> file. It is important that you replace <code>[YourSolution]</code> with the actual name of your solution file.</li>
+</ol>
+<pre class="language-xml line-numbers"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Project</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>Target</span> <span class="token attr-name">Name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>VSTest<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>MSBuild</span> <span class="token attr-name">Projects</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>@(ProjectReference)<span class="token punctuation">&quot;</span></span> <span class="token attr-name">Targets</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>VSTestIfTestProject<span class="token punctuation">&quot;</span></span> <span class="token punctuation">/&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>Target</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>Project</span><span class="token punctuation">&gt;</span></span>
+</code></pre>
+<ol start="3">
+<li>Run <code>dotnet test</code> in the solution&#x2019;s directory and it should work just fine.</li>
+</ol>
+<h2>How does it work?</h2>
+<p>To understand this workaround, we need to know a bit about how VSTest (the runner that powers <code>dotnet test</code> and Visual Studio&#x2019;s testing features) and MSBuild solutions work:</p>
+<p>The <code>dotnet test</code> only runs msbuild on the target file to invoke the <code>VSTest</code> msbuild target. So <code>dotnet test -c Reelase</code> is equivalent to <code>dotnet msbuild /t:VSTest /p:Configuration=Release</code>. The <code>/t:</code> argument tells MSBuild which target(s) to run and <code>/p:</code> arguments are used to set arbitrary properties that the definitions and targets involved in building the project understand.</p>
+<p>When all projects in a solution have a target with the same name, the target can also be run on the solution file, which then invokes the actual targets in all projects. Since VSTest is contained in the CLI as an msbuild extension, the extension target is added to all project files.
+This made running <code>dotnet test</code> with errors possible in the first place.</p>
+<p>This workaround replaces the <code>VSTest</code> target on the solution with a custom target. Since MSBuild automatically includes files using a naming convention, the <code>after.[SlnName].sln.targets</code> file is ideal to do this. <code>dotnet test</code> will now call this custom target on the solution instead of the one proveded in the CLI installation for all projects. In this custom target, we can then use the <a href="https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-task">MSBuild task</a> to call another custom target on all projects. A solution file is converted to an MSBuild project internally, that has project references to all projects in the solution. This allows us to use <code>@(ProjectReference)</code> as a way to reference all projects in the solution.</p>
+<p>This other custom target is implemented in <code>Directory.Build.targets</code>. MSBuild 15 searches the directory hierarchy for files files named <code>Directory.Build.props</code> or <code>Directory.Build.targets</code> to automatically include in the project file. The <code>.props</code> file - if found - will be imported at the beginning of the project, and the <code>.targets</code> file will be imported after the main content of the project. The default convention that has arisen in MSBuild development is to use <code>.targets</code> files for logic and <code>.props</code> files to set configuration properties and defaults to later use in logic, giving the project content (&#x201C;in the middle&#x201D;) an opportunity to change these properties.</p>
+<p>The custom target only checks if the property <code>$(IsTestProject)</code> is set to <code>true</code>. This property is set inside an MSBuild <code>.props</code> file that comes from the NuGet package <code>Microsoft.NET.Test.Sdk</code>. So the condition in the custom target will only match for projects that are really test projects meant to be used with VSTest. The target uses <code>&lt;CallTarget&gt;</code> to call the actual <code>VSTest</code> target if the condition matches. The use of this task is usually avoided if possible because the control flow is hard to follow and may have unexpected side effects, but in this case is the shortest way to do what is needed.</p>
+<h2>Example</h2>
+<p>To see a working example, check out my GitHub repository <a href="https://github.com/dasMulli/dotnet-win32-service/tree/a87bad6642c35afe906bf3dec5bd6a5acb237948">dotnet-win32-service</a>.</p>
+
+          <footer class="entry-meta">
+            <!-- TODO: Tags -->
+            <span class="author vcard"><span class="fn">Martin A. Ullrich</span></span>
+            <!-- TODO: Social Share -->
+          </footer>
+        </div>
+        <div class="read-more">
+          <div class="read-more-header">
+            <a href="https://dasmulli.github.io" class="read-more-btn">About the Author</a>
+          </div>
+          <div class="read-more-content author-info">
+            <h3>Martin A. Ullrich</h3>
+            <div class="author-container">
+              <img src="http://www.gravatar.com/avatar/1acd8ef9d33b72c888c544378a59be2b?s=150" alt="Martin A. Ullrich" class="author-img">
+              <div class="author-bio">Software Developer in the .NET space. Also do Java, Swift/ObjC and front-end stuff.</div>
+            </div>
+            <div class="author-share">
+              <ul class="list-inline social-buttons">
+                <li>
+                  <a href="https://github.com/dasmulli" title="GitHub" target="_blank">
+                    <i class="fa fa-github-alt fa-fw"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.facebook.com/martin.andreas.ullrich" title="Facebook" target="_blank">
+                    <i class="fa fa-facebook-official fa-fw"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://stackoverflow.com/users/784387/martin-ullrich" title="StackOverflow" target="_blank">
+                    <i class="fa fa-stack-overflow fa-fw"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://twitter.com/dasmulli" title="Twitter" target="_blank">
+                    <i class="fa fa-twitter fa-fw"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <section id="disqus_thread"></section>
+        <div class="read-more">
+          <div class="read-more-header">
+            <a href="https://dasmulli.blog/2018/01/18/auto-modifying-connection-strings-based-on-the-environment" class="read-more-btn">Read More</a>
+          </div>
+          <div class="read-more-content">
+            <h3>
+              <a href="/2018/01/21/use-appsettings-json-and-environment-overrides-in-classic-asp-net-apps" title="Use appsettings.json and environment overrides in classic ASP.NET apps">Use appsettings.json and environment overrides in classic ASP.NET apps</a>
+            </h3>
+            <p>
+              Supercharge your classic ASP.NET apps with the config system introduced in ASP.NET Core
+              <a href="/2018/01/21/use-appsettings-json-and-environment-overrides-in-classic-asp-net-apps">Continue reading</a>
+            </p>
+          </div>
+          <div class="read-more-list">
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-112754157-1', 'auto');
+      ga('require', 'linkid', 'linkid.js');
+      ga('send', 'pageview');
+    </script>
+    
+    <script src="https://dasmulli.disqus.com/embed.js" async data-timestamp="Tue Jan 23 2018 20:24:07 GMT+0100 (CET)"></script>
+    <script src="https://dasmulli.disqus.com/count.js" async id="dsq-count-scr"></script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    <div class="footer-wrapper">
+      <footer class="contentinfo">
+        <span>&copy; 2018 Martin A. Ullrich. Powered by <a href="http://www.metalsmith.io/" rel="nofollow">Matalsmith</a> using the <a href="https://github.com/tjpeden/neo-hpstr-metalsmith-theme" rel="nofollow">Neo-HPSTR Metalsmith Theme</a>.</span>
+      </footer>
+    </div>
+  </body>
+</html>
