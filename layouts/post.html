@@ -30,10 +30,10 @@
             <!-- TODO: Social Share -->
           </footer>
         </div>
-        {{> author}}
         {{#if (and site.disqus comments)}}
         <section id="disqus_thread"></section>
         {{/if}}
+        {{> author}}
         {{> read-more}}
       </article>
     </div>
