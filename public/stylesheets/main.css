@@ -1107,6 +1107,7 @@ ul.social-buttons li:hover a {
   display: none;
   flex-direction: column-reverse;
   background-color: white;
+  box-shadow: 0 6px 5px rgba(0, 0, 0, 0.4);
 }
 
 @media only screen and (min-width: 62.5em) {
@@ -1114,6 +1115,7 @@ ul.social-buttons li:hover a {
     display: block;
     background-color: transparent;
     height: 100%;
+    box-shadow: none;
   }
 }
 
@@ -1164,7 +1166,7 @@ ul.social-buttons li:hover a {
 @media only screen and (min-width: 62.5em) {
   .header-submenu {
     display: none;
-    width: 200px;
+    width: 200px !important;
     list-style-type: none;
     border-top: 2px solid #f45145;
     z-index: 100;

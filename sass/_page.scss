@@ -540,11 +540,13 @@ ul.social-buttons {
   display: none;
   flex-direction: column-reverse;
   background-color: $menu-top;
+  box-shadow: 0 6px 5px rgba($black, 0.4);
   
   @media #{$large} {
     display: block;
     background-color: transparent;
     height: 100%;
+    box-shadow: none;
   }
 }
 .header-item {
@@ -588,7 +590,7 @@ ul.social-buttons {
 .header-submenu {
   @media #{$large} {
     display: none;
-    width: 200px;
+    width: 200px !important;
     list-style-type: none;
     border-top: 2px solid $header-margin;
     z-index: 100;
