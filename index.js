@@ -109,7 +109,7 @@ Metalsmith(__dirname)
       url: '/about',
     }, {
       title: 'Archive',
-      url: '/posts',
+      url: '/posts'
     }, {
       title: 'Home',
       url: '/',
