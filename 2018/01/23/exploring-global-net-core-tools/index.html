@@ -154,6 +154,10 @@ if those apps aren&#x2019;t web apps that use one of the well-integrated publish
 
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>Project</span><span class="token punctuation">&gt;</span></span>
 </code></pre>
+<div class="note">
+<p>Using <code>netcoreapp2.1</code> will cause the tool to break between .NET Core 2.1 preview releaes. You will need to release/publish new version for each preview / RC release because the exact preview runtime version will be hardcoded into the generated output.</p>
+<p>You can use <code>netcoreapp2.0</code> instead during the preview / RC timeframe to create a .NET Core 2.0 tool.</p>
+</div>
 <p>While you may recognize <code>OutputType</code> and <code>TargetFramework</code> from normal csproj files, there are a few new ones here:</p>
 <ul>
 <li><code>PackageOutputPath</code>: This tells <code>dotnet pack</code> where to put the <code>.nupkg</code> file to. This propertiy isn&#x2019;t new and alredy exists in released tooling. For our example, it needs to point to the path we configured in <code>nuget.config</code>.</li>
@@ -278,7 +282,7 @@ Hi martin.ullrich!
       ga('send', 'pageview');
     </script>
     
-    <script src="https://dasmulli.disqus.com/embed.js" async data-timestamp="Sun Jan 28 2018 12:25:35 GMT+0100 (CET)"></script>
+    <script src="https://dasmulli.disqus.com/embed.js" async data-timestamp="Sun Mar 18 2018 05:21:54 GMT+0100 (CET)"></script>
     <script src="https://dasmulli.disqus.com/count.js" async id="dsq-count-scr"></script>
     <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
     <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
