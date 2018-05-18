@@ -155,8 +155,7 @@ if those apps aren&#x2019;t web apps that use one of the well-integrated publish
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>Project</span><span class="token punctuation">&gt;</span></span>
 </code></pre>
 <div class="note">
-<p>Using <code>netcoreapp2.1</code> will cause the tool to break between .NET Core 2.1 preview releaes. You will need to release/publish new version for each preview / RC release because the exact preview runtime version will be hardcoded into the generated output.</p>
-<p>You can use <code>netcoreapp2.0</code> instead during the preview / RC timeframe to create a .NET Core 2.0 tool.</p>
+<p>Using <code>netcoreapp2.1</code> will cause the tool to break between .NET Core 2.1 preview/RC/RTM releaes. You will need to release/publish a new version of your global tool once the framework you target becomes RTM / &quot;stable&quot;.</p>
 </div>
 <p>While you may recognize <code>OutputType</code> and <code>TargetFramework</code> from normal csproj files, there are a few new ones here:</p>
 <ul>
@@ -199,7 +198,6 @@ Hi martin.ullrich!
 <pre><code>&gt; dotnet greet
 Hi martin.ullrich!
 </code></pre>
-<p>Note: This <strong>currently does not work on macOS/Linux</strong> (known bug) because the CLI does not search the <code>~/.dotnet/tools</code> path for verb executables.</p>
 <h2>Sample code</h2>
 <p>The full sample is avilable at <a href="https://github.com/dasMulli/GlobalCliToolsExample">https://github.com/dasMulli/GlobalCliToolsExample</a>.</p>
 
@@ -282,7 +280,7 @@ Hi martin.ullrich!
       ga('send', 'pageview');
     </script>
     
-    <script src="https://dasmulli.disqus.com/embed.js" async data-timestamp="Sun Mar 18 2018 05:25:39 GMT+0100 (CET)"></script>
+    <script src="https://dasmulli.disqus.com/embed.js" async data-timestamp="Fri May 18 2018 15:39:18 GMT+0200 (CEST)"></script>
     <script src="https://dasmulli.disqus.com/count.js" async id="dsq-count-scr"></script>
     <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
     <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
