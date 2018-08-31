@@ -119,7 +119,7 @@ you can <strong>build once and run the same output in multiple environments</str
 <p>We can even <strong>use config reloading</strong> to update AppSettings values on the fly without the need to restart the AppPool, which would mean a short downtime. Note that this does not work for connections strings, since they are read-only and shouldn&#x2019;t be changed at runtime.</p>
 <h3>Step 1: Load the config</h3>
 <p>Let&#x2019;s create the ConfigurationBuilder subclass, named <code>AppSettingsJsonConfigurationBuilder</code>:</p>
-<pre class="language-csharp line-numbers"><code class="language-csharp"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">AppSettingsJsonConfigurationBuilder</span> <span class="token punctuation">:</span> ConfigurationBuilder
+<pre class="language-csharp line-numbers"><code class="language-csharp"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">AppSettingsJsonConfigurationBuilder</span> <span class="token punctuation">:</span> <span class="token class-name">ConfigurationBuilder</span>
 <span class="token punctuation">{</span>
 <span class="token preprocessor property">#<span class="token directive keyword">if</span> DEBUG</span>
     <span class="token keyword">private</span> <span class="token keyword">const</span> <span class="token keyword">string</span> DefaultEnvironmentName <span class="token operator">=</span> <span class="token string">&quot;Development&quot;</span><span class="token punctuation">;</span>
@@ -127,7 +127,7 @@ you can <strong>build once and run the same output in multiple environments</str
     <span class="token keyword">private</span> <span class="token keyword">const</span> <span class="token keyword">string</span> DefaultEnvironmentName <span class="token operator">=</span> <span class="token string">&quot;Production&quot;</span><span class="token punctuation">;</span>
 <span class="token preprocessor property">#<span class="token directive keyword">endif</span></span>
 
-    <span class="token keyword">private</span> <span class="token keyword">readonly</span> Lazy<span class="token operator">&lt;</span>IConfigurationRoot<span class="token operator">&gt;</span> Configuration <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Lazy</span><span class="token operator">&lt;</span>IConfigurationRoot<span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span>
+    <span class="token keyword">private</span> <span class="token keyword">readonly</span> Lazy<span class="token operator">&lt;</span>IConfigurationRoot<span class="token operator">&gt;</span> Configuration <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token generic-method"><span class="token function">Lazy</span><span class="token punctuation">&lt;</span><span class="token class-name">IConfigurationRoot</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">&gt;</span>
     <span class="token punctuation">{</span>
         <span class="token keyword">var</span> environmentName <span class="token operator">=</span> Environment<span class="token punctuation">.</span><span class="token function">GetEnvironmentVariable</span><span class="token punctuation">(</span><span class="token string">&quot;ASPNET_ENVIRONMENT&quot;</span><span class="token punctuation">)</span> <span class="token operator">?</span><span class="token operator">?</span>
                                 Environment<span class="token punctuation">.</span><span class="token function">GetEnvironmentVariable</span><span class="token punctuation">(</span><span class="token string">&quot;ASPNETCORE_ENVIRONMENT&quot;</span><span class="token punctuation">)</span> <span class="token operator">?</span><span class="token operator">?</span>
@@ -145,26 +145,26 @@ you can <strong>build once and run the same output in multiple environments</str
 <p>When accessed, the code loads a required <code>appsettings.json</code> file and an optional override json file for the current environment. by specifying <code>reloadOnChange: true</code>, we can later register for changes to the configuraitons.</p>
 <h3>Step 2: Process configuration sections.</h3>
 <p>There are two methos we can override on <code>ConfigurationBuilder</code>:</p>
-<pre class="language-csharp line-numbers"><code class="language-csharp"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">ConfigurationBuilder</span> <span class="token punctuation">:</span> ProviderBase
+<pre class="language-csharp line-numbers"><code class="language-csharp"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">ConfigurationBuilder</span> <span class="token punctuation">:</span> <span class="token class-name">ProviderBase</span>
 <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token keyword">virtual</span> XmlNode <span class="token function">ProcessRawXml</span><span class="token punctuation">(</span>XmlNode rawXml<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">virtual</span> <span class="token class-name">XmlNode</span> <span class="token function">ProcessRawXml</span><span class="token punctuation">(</span><span class="token class-name">XmlNode</span> rawXml<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token keyword">return</span> rawXml<span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 
-    <span class="token keyword">public</span> <span class="token keyword">virtual</span> ConfigurationSection <span class="token function">ProcessConfigurationSection</span><span class="token punctuation">(</span>ConfigurationSection configSection<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">virtual</span> <span class="token class-name">ConfigurationSection</span> <span class="token function">ProcessConfigurationSection</span><span class="token punctuation">(</span><span class="token class-name">ConfigurationSection</span> configSection<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token keyword">return</span> configSection<span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>Modifying the XML content is useful for configuration sections that don&#x2019;t provide easy to use editing APIs. For our purposes, we  only need to override the <code>ProcessConfigurationSection</code> method.</p>
 <p>So let&#x2019;s override the method and foward to more specific methods for the app settings and connection strings sections (thankfully, c# 7 pattern matching makes this quite easy):</p>
-<pre class="language-csharp line-numbers"><code class="language-csharp"><span class="token keyword">public</span> <span class="token keyword">override</span> ConfigurationSection <span class="token function">ProcessConfigurationSection</span><span class="token punctuation">(</span>ConfigurationSection configSection<span class="token punctuation">)</span>
+<pre class="language-csharp line-numbers"><code class="language-csharp"><span class="token keyword">public</span> <span class="token keyword">override</span> <span class="token class-name">ConfigurationSection</span> <span class="token function">ProcessConfigurationSection</span><span class="token punctuation">(</span><span class="token class-name">ConfigurationSection</span> configSection<span class="token punctuation">)</span>
 <span class="token punctuation">{</span>
     <span class="token keyword">switch</span> <span class="token punctuation">(</span>configSection<span class="token punctuation">)</span>
     <span class="token punctuation">{</span>
-        <span class="token keyword">case</span> AppSettingsSection appSettingsSection<span class="token punctuation">:</span>
+        <span class="token keyword">case</span> <span class="token class-name">AppSettingsSection</span> appSettingsSection<span class="token punctuation">:</span>
             <span class="token keyword">return</span> <span class="token function">ProcessAppSettingsSection</span><span class="token punctuation">(</span>appSettingsSection<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">case</span> ConnectionStringsSection connectionStringsSection<span class="token punctuation">:</span>
+        <span class="token keyword">case</span> <span class="token class-name">ConnectionStringsSection</span> connectionStringsSection<span class="token punctuation">:</span>
             <span class="token keyword">return</span> <span class="token function">ProcessConnectionStringsSection</span><span class="token punctuation">(</span>connectionStringsSection<span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">default</span><span class="token punctuation">:</span>
             <span class="token keyword">return</span> <span class="token keyword">base</span><span class="token punctuation">.</span><span class="token function">ProcessConfigurationSection</span><span class="token punctuation">(</span>configSection<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -181,7 +181,7 @@ you can <strong>build once and run the same output in multiple environments</str
 <span class="token punctuation">}</span>
 </code></pre>
 <p>This code is used to pull the app settings out of the json config and performan add-or-update on the .NET Framework app settings configuration section:</p>
-<pre class="language-csharp line-numbers"><code class="language-csharp"><span class="token keyword">private</span> AppSettingsSection <span class="token function">ProcessAppSettingsSection</span><span class="token punctuation">(</span>AppSettingsSection section<span class="token punctuation">)</span>
+<pre class="language-csharp line-numbers"><code class="language-csharp"><span class="token keyword">private</span> <span class="token class-name">AppSettingsSection</span> <span class="token function">ProcessAppSettingsSection</span><span class="token punctuation">(</span><span class="token class-name">AppSettingsSection</span> section<span class="token punctuation">)</span>
 <span class="token punctuation">{</span>
     <span class="token keyword">var</span> appSettingsConfigSection <span class="token operator">=</span> Configuration<span class="token punctuation">.</span>Value<span class="token punctuation">.</span><span class="token function">GetSection</span><span class="token punctuation">(</span><span class="token string">&quot;AppSettings&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token keyword">if</span> <span class="token punctuation">(</span>appSettingsConfigSection <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span>
@@ -197,7 +197,7 @@ you can <strong>build once and run the same output in multiple environments</str
             <span class="token keyword">continue</span><span class="token punctuation">;</span>
         <span class="token punctuation">}</span>
 
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>section<span class="token punctuation">.</span>Settings<span class="token punctuation">[</span>setting<span class="token punctuation">.</span>Key<span class="token punctuation">]</span> <span class="token keyword">is</span> KeyValueConfigurationElement existingElement<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>section<span class="token punctuation">.</span>Settings<span class="token punctuation">[</span>setting<span class="token punctuation">.</span>Key<span class="token punctuation">]</span> <span class="token keyword">is</span> <span class="token class-name">KeyValueConfigurationElement</span> existingElement<span class="token punctuation">)</span>
         <span class="token punctuation">{</span>
             existingElement<span class="token punctuation">.</span>Value <span class="token operator">=</span> setting<span class="token punctuation">.</span>Value<span class="token punctuation">;</span>
         <span class="token punctuation">}</span>
@@ -213,7 +213,7 @@ you can <strong>build once and run the same output in multiple environments</str
 <h3>Step 4: Load connection strings</h3>
 <p>The same needs to be done for connection strings.
 This time however we want to accomodate for both simple strings as connection strings and objects specifying both the connection string and the provider name.</p>
-<pre class="language-csharp line-numbers"><code class="language-csharp"><span class="token keyword">private</span> ConnectionStringsSection <span class="token function">ProcessConnectionStringsSection</span><span class="token punctuation">(</span>ConnectionStringsSection section<span class="token punctuation">)</span>
+<pre class="language-csharp line-numbers"><code class="language-csharp"><span class="token keyword">private</span> <span class="token class-name">ConnectionStringsSection</span> <span class="token function">ProcessConnectionStringsSection</span><span class="token punctuation">(</span><span class="token class-name">ConnectionStringsSection</span> section<span class="token punctuation">)</span>
 <span class="token punctuation">{</span>
     <span class="token keyword">var</span> connectionStringsSection <span class="token operator">=</span> Configuration<span class="token punctuation">.</span>Value<span class="token punctuation">.</span><span class="token function">GetSection</span><span class="token punctuation">(</span><span class="token string">&quot;ConnectionStrings&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token keyword">if</span> <span class="token punctuation">(</span>connectionStringsSection <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span>
@@ -244,7 +244,7 @@ This time however we want to accomodate for both simple strings as connection st
             <span class="token keyword">continue</span><span class="token punctuation">;</span>
         <span class="token punctuation">}</span>
 
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>connectionStringSettingsCollection<span class="token punctuation">[</span>key<span class="token punctuation">]</span> <span class="token keyword">is</span> ConnectionStringSettings existingConnectionString<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>connectionStringSettingsCollection<span class="token punctuation">[</span>key<span class="token punctuation">]</span> <span class="token keyword">is</span> <span class="token class-name">ConnectionStringSettings</span> existingConnectionString<span class="token punctuation">)</span>
         <span class="token punctuation">{</span>
             existingConnectionString<span class="token punctuation">.</span>ConnectionString <span class="token operator">=</span> <span class="token keyword">value</span><span class="token punctuation">;</span>
             <span class="token keyword">if</span> <span class="token punctuation">(</span>providerName <span class="token operator">!=</span> <span class="token keyword">null</span><span class="token punctuation">)</span>
@@ -267,7 +267,7 @@ This time however we want to accomodate for both simple strings as connection st
 <p>Since app settings can be modified during runtime, we can use the Microsoft.Extension.Configuration system&#x2019;s reload functionality to register for changes.</p>
 <p>This works by requesting a reload token and registering a change callback. The callback is only called once, so we need to reregister on every change.</p>
 <p>To do this, we extend the <code>ProcessAppSettingsSection</code> from step 3 to register for the first change, use the <code>ConfigurationManager</code> api to modify app settings on change and re-register for further changes:</p>
-<pre class="language-csharp line-numbers"><code class="language-csharp">    <span class="token keyword">private</span> AppSettingsSection <span class="token function">ProcessAppSettingsSection</span><span class="token punctuation">(</span>AppSettingsSection section<span class="token punctuation">)</span>
+<pre class="language-csharp line-numbers"><code class="language-csharp">    <span class="token keyword">private</span> <span class="token class-name">AppSettingsSection</span> <span class="token function">ProcessAppSettingsSection</span><span class="token punctuation">(</span><span class="token class-name">AppSettingsSection</span> section<span class="token punctuation">)</span>
     <span class="token punctuation">{</span>
         <span class="token comment">// omitted. see step 3</span>
 
@@ -429,7 +429,7 @@ This time however we want to accomodate for both simple strings as connection st
       ga('send', 'pageview');
     </script>
     
-    <script src="https://dasmulli.disqus.com/embed.js" async data-timestamp="Fri May 18 2018 15:39:18 GMT+0200 (CEST)"></script>
+    <script src="https://dasmulli.disqus.com/embed.js" async data-timestamp="Fri Aug 31 2018 09:42:24 GMT+0200 (Central European Summer Time)"></script>
     <script src="https://dasmulli.disqus.com/count.js" async id="dsq-count-scr"></script>
     <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
     <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
