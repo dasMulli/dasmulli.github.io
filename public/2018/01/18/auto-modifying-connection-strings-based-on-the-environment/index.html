@@ -126,19 +126,19 @@
 <p>This can be done in <code>ConfigureServices</code> when configuring EF Core:</p>
 <pre class="language-csharp line-numbers"><code class="language-csharp"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Startup</span>
 <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token function">Startup</span><span class="token punctuation">(</span>IConfiguration configuration<span class="token punctuation">,</span> IHostingEnvironment hostingEnvironment<span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token function">Startup</span><span class="token punctuation">(</span><span class="token class-name">IConfiguration</span> configuration<span class="token punctuation">,</span> <span class="token class-name">IHostingEnvironment</span> hostingEnvironment<span class="token punctuation">)</span>
     <span class="token punctuation">{</span>
         Configuration <span class="token operator">=</span> configuration<span class="token punctuation">;</span>
         HostingEnvironment <span class="token operator">=</span> hostingEnvironment<span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 
-    <span class="token keyword">public</span> IConfiguration Configuration <span class="token punctuation">{</span> <span class="token keyword">get</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+    <span class="token keyword">public</span> <span class="token class-name">IConfiguration</span> Configuration <span class="token punctuation">{</span> <span class="token keyword">get</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
 
-    <span class="token keyword">public</span> IHostingEnvironment HostingEnvironment <span class="token punctuation">{</span> <span class="token keyword">get</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+    <span class="token keyword">public</span> <span class="token class-name">IHostingEnvironment</span> HostingEnvironment <span class="token punctuation">{</span> <span class="token keyword">get</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
 
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">ConfigureServices</span><span class="token punctuation">(</span>IServiceCollection services<span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">ConfigureServices</span><span class="token punctuation">(</span><span class="token class-name">IServiceCollection</span> services<span class="token punctuation">)</span>
     <span class="token punctuation">{</span>
-        services<span class="token punctuation">.</span><span class="token generic-method function">AddDbContextPool<span class="token punctuation">&lt;</span>MyDbContext<span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span>options <span class="token operator">=</span><span class="token operator">&gt;</span>
+        services<span class="token punctuation">.</span><span class="token generic-method"><span class="token function">AddDbContextPool</span><span class="token punctuation">&lt;</span><span class="token class-name">MyDbContext</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span>options <span class="token operator">=</span><span class="token operator">&gt;</span>
         <span class="token punctuation">{</span>
             <span class="token keyword">var</span> connectionString <span class="token operator">=</span> Configuration<span class="token punctuation">.</span><span class="token function">GetConnectionString</span><span class="token punctuation">(</span><span class="token string">&quot;MyDbConnection&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
@@ -250,7 +250,7 @@
       ga('send', 'pageview');
     </script>
     
-    <script src="https://dasmulli.disqus.com/embed.js" async data-timestamp="Fri May 18 2018 15:39:18 GMT+0200 (CEST)"></script>
+    <script src="https://dasmulli.disqus.com/embed.js" async data-timestamp="Fri Aug 31 2018 09:42:24 GMT+0200 (Central European Summer Time)"></script>
     <script src="https://dasmulli.disqus.com/count.js" async id="dsq-count-scr"></script>
     <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
     <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
